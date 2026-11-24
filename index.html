@@ -49,7 +49,6 @@ h2{font-family:Fraunces,serif;font-weight:700;font-size:24px;margin:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
 .card .mini{height:140px;background:var(--line);z-index:0}
-.card .mini .leaflet-control-container{display:none}
 .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
 .card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .card h3{font-family:Fraunces,serif;font-size:21px;line-height:1.15;margin:2px 0 0}
@@ -104,6 +103,12 @@ const VIAGENS=window.VIAGENS||[];
 const ALL=VIAGENS.flatMap(v=>v.roteiros.map(r=>({...r,viagem:v})));
 const hrefOf=r=>r.pagina||("roteiro/?id="+encodeURIComponent(r.id));
 const pts=r=>(r.paradas||[]).filter(p=>Array.isArray(p.ll));
+function addBasemap(map){
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
+    maxZoom:19,
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+}
 
 // ---------- datas ----------
 const MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
@@ -160,8 +165,8 @@ function renderTrips(){
   vs.forEach(v=>v.roteiros.forEach(r=>{
     const el=document.getElementById("mini-"+r.id), P=pts(r); if(!el) return;
     if(!P.length){el.style.display="none";return}
-    const m=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false});
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m);
+    const m=L.map(el,{zoomControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false});
+    addBasemap(m);
     if(P.length>1) L.polyline(P.map(p=>p.ll),{color:r.cor,weight:3,opacity:.8}).addTo(m);
     P.forEach(p=>L.circleMarker(p.ll,{radius:4,color:"#fff",weight:1.5,fillColor:r.cor,fillOpacity:1}).addTo(m));
     P.length>1?m.fitBounds(P.map(p=>p.ll),{padding:[14,14]}):m.setView(P[0].ll,14);
@@ -213,7 +218,7 @@ function fitVisible(){
 function initMap(){
   if(!window.L){$("#map").innerHTML='<div class="empty small">Mapa indisponível sem internet.</div>';return}
   map=L.map("map",{scrollWheelZoom:false,worldCopyJump:true});
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+  addBasemap(map);
   map.on("zoomend",zoomLayers);
   fitVisible(); drawMap();
 }
