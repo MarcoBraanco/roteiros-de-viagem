@@ -20,7 +20,7 @@ window.VIAGENS = [
     id: "europa-2026",
     nome: "Europa no inverno",
     periodo: "novembro de 2026",
-    resumo: "São Paulo → escala em Madrid → Dublin → Paris, com um dia na Disney.",
+    resumo: "São Paulo → escala em Madrid → Dublin → Paris, com um dia na Disney → Roma.",
     roteiros: [
       {
         id: "madrid",
@@ -77,6 +77,18 @@ window.VIAGENS = [
           { n: "Galeries Lafayette", ll: [48.87334, 2.33232] },
           { n: "Arco do Triunfo", ll: [48.87378, 2.29504] },
           { n: "Aérobus A01 · Porte Maillot", ll: [48.88003, 2.2829] }
+        ]
+      },
+      {
+        id: "vaticano",
+        pagina: "vaticano/",
+        titulo: "Museus Vaticanos e Capela Sistina",
+        subtitulo: "Das 13h às 16h, com mapa dos dois pisos, guia das obras e atalho para a Sistina.",
+        cidade: "Roma", bandeira: "🇻🇦", emoji: "🎨",
+        data: "2026-11-25", fuso: "Europe/Rome", cor: "#9a3e2a",
+        totalParadas: 7,
+        paradas: [
+          { n: "Entrada dos Museus Vaticanos · Viale Vaticano", ll: [41.9071, 12.4536], t: "13:00" }
         ]
       }
     ]

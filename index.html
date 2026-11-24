@@ -140,14 +140,14 @@ function renderTrips(){
     const rs=[...v.roteiros].sort((a,b)=>(a.data||"9").localeCompare(b.data||"9"));
     return `<section class="trip"><div class="trip-head"><h2>${esc(v.nome)}</h2><span class="per">${esc(v.periodo||"")}</span></div>
       ${v.resumo?`<p class="sub">${esc(v.resumo)}</p>`:""}
-      <div class="grid">${rs.map(r=>{const s=status(r),n=pts(r).length;return `
+      <div class="grid">${rs.map(r=>{const s=status(r),n=pts(r).length,total=r.totalParadas??n;return `
         <article class="card">
           <div class="stripe" style="background:${esc(r.cor)}"></div>
           <div class="mini" id="mini-${esc(r.id)}"></div>
           <div class="body">
             <div class="meta"><span style="color:${esc(r.cor)}">${esc(r.bandeira||"")} ${esc(r.cidade||"")}</span><span class="tag ${s.cls}">${s.txt}</span></div>
             <h3>${esc(r.emoji||"")} ${esc(r.titulo)}</h3>
-            <div class="small" style="font-weight:600">${esc(fmtData(r.data))}${n?` · ${n} paradas`:""}</div>
+            <div class="small" style="font-weight:600">${esc(fmtData(r.data))}${total?` · ${total} ${total===1?"parada":"paradas"}`:""}</div>
             <p>${esc(r.subtitulo||"")}</p>
             <div class="btns">
               <a class="btn primary" style="background:${esc(r.cor)}" href="${esc(hrefOf(r))}">Abrir roteiro →</a>
