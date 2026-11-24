@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2c5d8f">
+<title>Roteiro</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf6ef;--card:#fff;--ink:#1f1a17;--muted:#6f655c;--line:#e8dfd2;
+  --gold-soft:#fbf1d8;--green:#2f7d57;--green-soft:#e2f1e8;--blue:#2c5d8f;--blue-soft:#e3ecf6;--c:#2c5d8f;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#16130f;--card:#211c17;--ink:#f3ece3;--muted:#b0a596;--line:#3a3229;
+  --gold-soft:#372c15;--green:#5fb98a;--green-soft:#1c3327;--blue:#7aa8d6;--blue-soft:#1b2a3a;}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 80px}
+a{color:inherit}
+header{padding:calc(22px + env(safe-area-inset-top)) 0 14px}
+.back{display:inline-block;margin-bottom:10px;font-size:13px;font-weight:600;text-decoration:none;color:var(--muted)}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+h1{font-family:Fraunces,serif;font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1.05;margin:6px 0 6px}
+h2{font-family:Fraunces,serif;font-weight:700;font-size:22px;margin:28px 0 10px}
+.sub{color:var(--muted);margin:0}
+.small{font-size:12.5px;color:var(--muted)}
+#map{height:340px;border-radius:14px;border:1px solid var(--line);overflow:hidden;z-index:1}
+.leaflet-popup-content{font:13px/1.4 Inter,sans-serif}
+.pin{width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;font:700 12px Inter,sans-serif;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.pin.done{background:#2f7d57}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 11px;font:600 13px Inter,sans-serif;text-decoration:none;line-height:1.2}
+.btn.primary{background:var(--c);border-color:var(--c);color:#fff}
+.phase{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;transition:opacity .2s}
+.step.done{opacity:.55}
+.step.isnext{border-color:var(--c);box-shadow:0 0 0 2px var(--blue-soft)}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;font-weight:800;color:#fff;padding:0}
+.step.done .chk{background:var(--green);border-color:var(--green)}
+.top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.time{font-weight:700;font-variant-numeric:tabular-nums;color:var(--c)}
+.name{font-weight:700;font-size:15.5px}
+.desc{color:var(--muted);font-size:13.5px;margin-top:2px}
+.tip{font-size:13px;margin-top:6px;background:var(--gold-soft);border-radius:8px;padding:6px 9px}
+.walk{font-size:12px;font-weight:600;color:var(--blue);margin:-2px 0 8px 44px}
+.empty{padding:40px 0;text-align:center}
+footer{margin-top:36px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../viagens.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const enc=encodeURIComponent;
+const id=new URLSearchParams(location.search).get("id");
+let R=null,V=null;
+(window.VIAGENS||[]).forEach(v=>v.roteiros.forEach(r=>{if(r.id===id){R=r;V=v}}));
+
+if(!R){
+  $("#app").innerHTML=`<header><a class="back" href="../">← Todas as viagens</a></header><div class="empty"><h1>Roteiro não encontrado</h1><p class="small">Confiram o id em viagens.js.</p></div>`;
+}else if(R.pagina){
+  location.replace("../"+R.pagina);
+}else{
+  document.title=R.titulo+" · Roteiro";
+  if(R.cor){document.documentElement.style.setProperty("--c",R.cor);document.querySelector('meta[name=theme-color]').content=R.cor}
+  const P=R.paradas||[], modo=R.modo||"walking";
+  const q=s=>s.a||[s.n,R.cidade].filter(Boolean).join(", ");
+  const place=s=>"https://www.google.com/maps/search/?api=1&query="+enc(q(s));
+  const go=s=>"https://www.google.com/maps/dir/?api=1&destination="+enc(q(s))+"&travelmode="+modo;
+  const comPino=P.filter(p=>Array.isArray(p.ll));
+  const rota=comPino.length>1?"https://www.google.com/maps/dir/?api=1&origin="+enc(q(comPino[0]))+"&destination="+enc(q(comPino[comPino.length-1]))
+    +(comPino.length>2?"&waypoints="+comPino.slice(1,-1).slice(0,9).map(p=>enc(q(p))).join("%7C"):"")+"&travelmode="+modo:null;
+  const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const dataTxt=R.data?(()=>{const[y,m,d]=R.data.split("-").map(Number);return `${d} ${MES[m-1]} ${y}`})():"";
+
+  $("#app").innerHTML=`
+  <header>
+    <a class="back" href="../">← Todas as viagens</a>
+    <div class="kicker">${esc(R.bandeira||"")} ${esc(R.cidade||"")}${dataTxt?" · "+esc(dataTxt):""}</div>
+    <h1>${esc(R.emoji||"")} ${esc(R.titulo)}</h1>
+    <p class="sub">${esc(R.subtitulo||"")}</p>
+    <p class="small" style="margin-top:6px">Parte da viagem <b>${esc(V.nome)}</b></p>
+  </header>
+  ${comPino.length?`<section><h2>Mapa</h2><div id="map"></div>
+    <div class="btns">${rota?`<a class="btn primary" target="_blank" rel="noopener" href="${rota}">🗺️ Rota completa no Google Maps</a>`:""}</div></section>`:""}
+  <section><h2>Roteiro passo a passo</h2>
+    <p class="small">Toquem no círculo quando terminarem uma parada. Fica salvo neste celular. <button class="btn" id="reset" style="padding:4px 9px;font-size:12px">Limpar marcações</button></p>
+    <div id="steps"></div></section>
+  <footer>Roteiro salvo em viagens.js. Confiram horários no Google Maps no dia.</footer>`;
+
+  const KEY="roteiro-"+R.id;
+  let done={}; try{done=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}};
+  let map;
+  function render(){
+    const ni=P.findIndex((_,i)=>!done[i]); let h="";
+    P.forEach((s,i)=>{
+      if(s.ph) h+=`<div class="phase">${esc(s.ph)}</div>`;
+      h+=`<div class="step ${done[i]?"done":""} ${i===ni?"isnext":""}">
+        <button class="chk" data-i="${i}" aria-label="marcar">${done[i]?"✓":""}</button>
+        <div><div class="top">${s.t?`<span class="time">${esc(s.t)}</span>`:""}<span class="name">${esc(s.n)}</span></div>
+        ${s.d?`<div class="desc">${esc(s.d)}</div>`:""}
+        ${s.dica?`<div class="tip">💡 ${esc(s.dica)}</div>`:""}
+        <div class="btns"><a class="btn" target="_blank" rel="noopener" href="${place(s)}">📍 Ver no Maps</a>
+          <a class="btn" target="_blank" rel="noopener" href="${go(s)}">${modo==="walking"?"🚶":modo==="driving"?"🚗":"🚌"} Como chegar</a></div></div></div>`;
+      if(s.w) h+=`<div class="walk">↓ ${esc(s.w)}</div>`;
+    });
+    $("#steps").innerHTML=h||'<div class="small">Nenhuma parada cadastrada ainda.</div>';
+    document.querySelectorAll(".pin[data-i]").forEach(el=>el.classList.toggle("done",!!done[+el.dataset.i]));
+  }
+  $("#steps").addEventListener("click",e=>{const b=e.target.closest(".chk");if(!b)return;const i=+b.dataset.i;
+    if(done[i]) delete done[i]; else done[i]=true; save(); render();});
+  $("#reset").onclick=()=>{done={};save();render()};
+  if(comPino.length&&window.L){
+    map=L.map("map",{scrollWheelZoom:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+    if(comPino.length>1) L.polyline(comPino.map(p=>p.ll),{color:R.cor||"#2c5d8f",weight:3,opacity:.7,dashArray:"6 6"}).addTo(map);
+    let k=0;
+    P.forEach((s,i)=>{if(!Array.isArray(s.ll))return;
+      const m=L.marker(s.ll,{icon:L.divIcon({className:"",html:`<div class="pin" data-i="${i}">${++k}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(map)
+        .bindPopup(`<b>${s.t?esc(s.t)+" · ":""}${esc(s.n)}</b>${s.d?"<br>"+esc(s.d):""}<br><a target="_blank" rel="noopener" href="${place(s)}">📍 Abrir no Google Maps</a>`);
+    });
+    comPino.length>1?map.fitBounds(comPino.map(p=>p.ll),{padding:[24,24]}):map.setView(comPino[0].ll,15);
+  }
+  render();
+}
+</script>
+</body>
+</html>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#b8322a">
-<title>Madrid · Roteiro Clássico (escala de domingo)</title>
+<meta name="theme-color" content="#2c5d8f">
+<title>Nossas viagens · Roteiros</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,436 +19,207 @@
   --red:#e2665c;--red-soft:#3b211d;--gold:#e8b94a;--gold-soft:#372c15;
   --green:#5fb98a;--green-soft:#1c3327;--blue:#7aa8d6;--blue-soft:#1b2a3a;}}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:64px}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
-.wrap{max-width:760px;margin:0 auto;padding:0 14px 80px}
+.wrap{max-width:900px;margin:0 auto;padding:0 14px 80px}
 a{color:inherit}
-header{padding:calc(22px + env(safe-area-inset-top)) 0 14px}
-.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
-h1{font-family:Fraunces,serif;font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1.05;margin:6px 0 6px}
-h2{font-family:Fraunces,serif;font-weight:700;font-size:22px;margin:30px 0 10px}
-.sub{color:var(--muted);margin:0}
-/* sticky status */
-.status{position:sticky;top:0;z-index:1000;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;margin:0 -14px;padding-left:14px;padding-right:14px}
-.status-in{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.clock{font-variant-numeric:tabular-nums;font-weight:700;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:14px}
-.clock small{color:var(--muted);font-weight:600;margin-right:4px}
-.count{font-weight:700;font-size:14px;border-radius:10px;padding:5px 10px}
-.count.ok{background:var(--green-soft);color:var(--green)}
-.count.warn{background:var(--gold-soft);color:var(--gold)}
-.count.bad{background:var(--red-soft);color:var(--red)}
-.navs{display:flex;gap:6px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
-.navs a{flex:none;text-decoration:none;font-size:13px;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
-/* cards */
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.alert{background:var(--red-soft);border:0;border-left:4px solid var(--red)}
-.next{background:var(--blue-soft);border:0;border-left:4px solid var(--blue)}
-.next .lbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
-.next .ttl{font-family:Fraunces,serif;font-size:20px;font-weight:700;margin:2px 0}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.btn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 11px;font:600 13px Inter,sans-serif;text-decoration:none;line-height:1.2}
-.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
-.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn:active{transform:scale(.97)}
-.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px;vertical-align:1px}
-.tag.red{background:var(--red-soft);color:var(--red)}.tag.green{background:var(--green-soft);color:var(--green)}
-.tag.gold{background:var(--gold-soft);color:var(--gold)}.tag.blue{background:var(--blue-soft);color:var(--blue)}
-/* map */
-#map{height:340px;border-radius:14px;border:1px solid var(--line);overflow:hidden;z-index:1}
-.leaflet-popup-content{font:13px/1.4 Inter,sans-serif}
-.pin{width:26px;height:26px;border-radius:50%;background:#b8322a;color:#fff;font:700 12px Inter,sans-serif;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
-.pin.done{background:#2f7d57}
-.pin.next{background:#2c5d8f;transform:scale(1.15)}
-/* steps */
-.phase{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
-.step{display:grid;grid-template-columns:34px 1fr;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px;transition:opacity .2s}
-.step.done{opacity:.55}
-.step.isnext{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-soft)}
-.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;font-weight:800;color:#fff;padding:0}
-.step.done .chk{background:var(--green);border-color:var(--green)}
-.step .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
-.step .time{font-weight:700;font-variant-numeric:tabular-nums;color:var(--red)}
-.step .name{font-weight:700;font-size:15.5px}
-.step .desc{color:var(--muted);font-size:13.5px;margin-top:2px}
-.step .tip{font-size:13px;margin-top:6px;background:var(--gold-soft);border-radius:8px;padding:6px 9px}
-.walk{font-size:12px;font-weight:600;color:var(--blue);margin:-2px 0 8px 44px}
-/* table */
-table{width:100%;border-collapse:collapse;font-size:14px}
-td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
-th{border-top:0;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.mono{font-variant-numeric:tabular-nums;font-weight:700}
-/* phrases */
-.phr{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
-.phr:first-child{border-top:0}
-.phr .es{font-weight:600}
-.phr .pt{font-size:12.5px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;transition:transform .25s;z-index:2000}
-.toast.show{transform:translateX(-50%) translateY(0)}
+header{padding:calc(26px + env(safe-area-inset-top)) 0 16px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+h1{font-family:Fraunces,serif;font-weight:800;font-size:clamp(32px,8vw,48px);line-height:1.02;margin:6px 0 8px}
+h2{font-family:Fraunces,serif;font-weight:700;font-size:24px;margin:0}
+.sub{color:var(--muted);margin:0;max-width:600px}
 .small{font-size:12.5px;color:var(--muted)}
-footer{margin-top:36px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+/* filtros */
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:4px 0 12px}
+.chip{flex:none;cursor:pointer;font:600 13px Inter,sans-serif;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* mapa geral */
+#map{height:min(52vh,420px);border-radius:16px;border:1px solid var(--line);overflow:hidden;z-index:1}
+.leaflet-popup-content{font:13px/1.45 Inter,sans-serif;margin:12px 14px}
+.leaflet-popup-content b{font-size:14px}
+.trip-pin{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid #fff;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.stop-pin{width:22px;height:22px;border-radius:50%;color:#fff;font:700 11px Inter,sans-serif;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.mapbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.btn{display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 11px;font:600 13px Inter,sans-serif;text-decoration:none;line-height:1.2}
+.btn.primary{color:#fff;border-color:transparent}
+.btn:active{transform:scale(.97)}
+/* viagens */
+.trip{margin-top:30px}
+.trip-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.trip-head .per{font-size:13px;font-weight:600;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.card .mini{height:140px;background:var(--line);z-index:0}
+.card .mini .leaflet-control-container{display:none}
+.card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
+.card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.card h3{font-family:Fraunces,serif;font-size:21px;line-height:1.15;margin:2px 0 0}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.card .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:10px}
+.card .stripe{height:5px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px}
+.tag.green{background:var(--green-soft);color:var(--green)}.tag.blue{background:var(--blue-soft);color:var(--blue)}
+.tag.gold{background:var(--gold-soft);color:var(--gold)}.tag.gray{background:var(--line);color:var(--muted)}
+details.how{margin-top:34px;background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:12px 14px}
+details.how summary{cursor:pointer;font-weight:700}
+details.how code{font-size:12.5px;background:var(--bg);padding:1px 5px;border-radius:5px}
+footer{margin-top:30px;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+.empty{padding:30px;text-align:center}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <div class="kicker">Escala em Madrid · domingo</div>
-  <h1>Roteiro Clássico a pé</h1>
-  <p class="sub">T4S → malas no T1 → Cibeles → Sol, Plaza Mayor, Palácio, pôr do sol no Debod, Gran Vía → T1. Ryanair para Dublin às 23h.</p>
+  <div class="kicker">Roteiros de viagem</div>
+  <h1>Pra onde a gente vai?</h1>
+  <p class="sub">Escolham uma viagem no mapa ou na lista. Cada roteiro abre com o passo a passo do dia, horários e atalhos do Google Maps.</p>
 </header>
 
-<div class="status">
-  <div class="status-in">
-    <span class="clock"><small>Madrid</small><span id="clk">--:--</span></span>
-    <span class="count ok" id="cnt">…</span>
-  </div>
-  <nav class="navs">
-    <a href="#agora">Agora</a><a href="#mapa">Mapa</a><a href="#roteiro">Roteiro</a>
-    <a href="#onibus">Ônibus</a><a href="#frases">Frases</a><a href="#info">Infos</a>
-  </nav>
+<div class="chips" id="chips"></div>
+<div id="map"></div>
+<div class="mapbar">
+  <button class="btn" id="fitAll">🌍 Ver tudo</button>
+  <span class="small" style="align-self:center">Toquem num pino para abrir o roteiro. Aproximem o mapa para ver as paradas numeradas.</span>
 </div>
 
-<section id="agora" style="margin-top:14px">
-  <div class="card next" id="nextCard"></div>
-  <div class="card alert" style="margin-top:10px;font-size:14px">
-    <b style="color:var(--red)">Limites do dia:</b> ônibus 203 até <b>19h30</b> (máx. 19h45) · Uber até <b>19h40</b> (máx. 19h55) · táxi até <b>19h45</b> (máx. 20h00) · estar no T1 até <b>20h30</b> (no máximo 21h) · balcão da Ryanair fecha às <b>22h</b>.
-  </div>
-</section>
+<div id="trips"></div>
 
-<section id="mapa">
-  <h2>Mapa</h2>
-  <div id="map"></div>
-  <div class="btns">
-    <a class="btn primary" target="_blank" rel="noopener" id="fullRoute">🗺️ Rota completa a pé no Google Maps</a>
-    <button class="btn" id="fitCity">🔍 Centro</button>
-    <button class="btn" id="fitAll">✈️ Incluir aeroporto</button>
+<details class="how">
+  <summary>➕ Como adicionar uma viagem nova</summary>
+  <div class="small" style="margin-top:8px">
+    Todas as viagens e paradas ficam no arquivo <code>viagens.js</code>, dentro do próprio site. Para criar uma viagem nova, copiem o bloco de uma viagem, colem depois de uma vírgula e troquem nome, datas e paradas.
+    Um roteiro <b>sem</b> o campo <code>pagina</code> ganha uma página automática (mapa, checklist e botões do Maps) em <code>roteiro/?id=…</code>. Para um roteiro muito personalizado, criem uma pasta com um <code>index.html</code> próprio e coloquem <code>pagina: "pasta/"</code>.
   </div>
-  <p class="small">Toquem num pino para abrir o lugar. Vermelho: falta · azul: próxima parada · verde: feito.</p>
-</section>
+</details>
 
-<section id="roteiro">
-  <h2>Roteiro passo a passo</h2>
-  <p class="small">Toquem no círculo quando <b>terminarem</b> uma parada. O site anota a hora e recalcula as próximas: o horário riscado é o planejado, o colorido é o novo (vermelho atrasou, verde adiantou). Tocar de novo desmarca. Tudo fica salvo neste celular. <button class="btn" id="reset" style="padding:4px 9px;font-size:12px">Limpar marcações</button></p>
-  <div id="steps"></div>
-</section>
-
-<section id="onibus">
-  <h2>Ônibus e transporte</h2>
-  <div class="grid2">
-    <div class="card">
-      <span class="tag green">grátis · 24h</span>
-      <h3 style="margin:6px 0 4px">Ônibus verde T4 → T1</h3>
-      <div class="small">Bus de conexão entre terminais. Na tela aparece <b>"T1-T2-T3-T4"</b>. Pega na T4, planta 0 (desembarque), na calçada externa. Passa a cada ~5 min e leva ~15 min até o T1. <b>Não peguem</b> o amarelo (estacionamento) nem o azul (centro).</div>
-    </div>
-    <div class="card">
-      <span class="tag red">€5 por pessoa</span>
-      <h3 style="margin:6px 0 4px">Exprés Aeropuerto 203</h3>
-      <div class="small">Aceita cartão contactless, celular ou dinheiro (troco máximo de €20). Passa a cada 15–20 min entre 6h e 23h30. O trajeto entre T1 e Cibeles leva ~30–40 min.</div>
-    </div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <table>
-      <tr><th>Trecho</th><th>Parada</th><th></th></tr>
-      <tr><td><b>Ida</b><br><span class="small">T1 → centro</span></td><td>Embarque: <b>Aeropuerto T1-Llegadas</b> <span class="mono">(3540)</span>, sigam as placas "EMT 24h"<br>Desçam em: <b>Cibeles</b></td>
-        <td><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Aeropuerto+Madrid-Barajas+Terminal+1&destination=Plaza+de+Cibeles%2C+Madrid&travelmode=transit">🚌 Maps</a></td></tr>
-      <tr><td><b>Volta</b><br><span class="small">centro → T1</span></td><td>Embarque: <b>Cibeles</b> <span class="mono">(parada 71, sentido aeroporto)</span><br>Desçam em: <b>Aeropuerto T1-Salidas</b> <span class="mono">(3539)</span>, a primeira parada no aeroporto</td>
-        <td><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Plaza+de+Cibeles%2C+Madrid&destination=Aeropuerto+Madrid-Barajas+Terminal+1&travelmode=transit">🚌 Maps</a></td></tr>
-      <tr><td><b>Plano B</b><br><span class="small">volta</span></td><td><b>Atocha</b> <span class="mono">(parada 5709)</span> é o ponto inicial da linha: tem lugar para sentar e ~30 min até o T1</td>
-        <td><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Estaci%C3%B3n+de+Atocha+autob%C3%BAs+203+Expr%C3%A9s+Aeropuerto">📍 Maps</a></td></tr>
-    </table>
-    <div class="btns">
-      <button class="btn" data-copy="3540">📋 Copiar parada 3540</button>
-      <button class="btn" data-copy="71">📋 Copiar parada 71</button>
-      <a class="btn" target="_blank" rel="noopener" href="https://www.emtmadrid.es/aeropuerto">ℹ️ Site oficial da EMT</a>
-    </div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <span class="tag red">volta ao aeroporto</span>
-    <h3 style="margin:6px 0 4px">Até que horas sair do centro</h3>
-    <table>
-      <tr><th>Como</th><th>Ideal</th><th>Máximo</th><th>Viagem · preço</th></tr>
-      <tr><td><b>🚌 Ônibus 203</b><br><span class="small">Cibeles, parada 71</span></td><td class="mono">19:30</td><td class="mono">19:45</td><td class="small">30–40 min + espera de até 20 min · €5 por pessoa</td></tr>
-      <tr><td><b>🚕 Táxi</b><br><span class="small">ponto ou acenar na rua</span></td><td class="mono">19:45</td><td class="mono">20:00</td><td class="small">20–30 min · €33 fixos pelo carro</td></tr>
-      <tr><td><b>📱 Uber / Cabify</b><br><span class="small">hora de pedir</span></td><td class="mono">19:40</td><td class="mono">19:55</td><td class="small">5–10 min de espera + 20–30 min · preço variável, confiram no app</td></tr>
-    </table>
-    <div class="small" style="margin-top:8px"><b>Ideal</b> é chegar ao T1 por volta de 20h30. <b>Máximo</b> é chegar perto de 21h, ainda a tempo de pegar as malas, passar pela segurança e pelo passaporte de saída antes de o balcão da Ryanair fechar (22h). No app, o destino é <b>"Aeropuerto Madrid-Barajas, Terminal 1"</b>. Comparem o Uber com o táxi: o táxi a €33 costuma empatar ou sair mais barato.</div>
-    <div class="btns">
-      <a class="btn blue" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=Aeropuerto+Madrid-Barajas+Terminal+1&travelmode=driving">🚗 Tempo de carro agora</a>
-      <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=Aeropuerto+Madrid-Barajas+Terminal+1&travelmode=transit">🚌 Ônibus agora</a>
-      <button class="btn" data-copy="Aeropuerto Madrid-Barajas, Terminal 1">📋 Copiar destino</button>
-    </div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <span class="tag gold">€33 fixos pelo carro</span>
-    <h3 style="margin:6px 0 4px">Táxi (plano B / atraso)</h3>
-    <div class="small">É uma tarifa fixa entre o aeroporto e qualquer ponto dentro da M-30, sem suplemento, e vale para qualquer terminal. Confirmem "tarifa fija" ao entrar. Leva 20–30 min. Há pontos de táxi na Puerta del Sol, na Gran Vía e em Cibeles.</div>
-    <div class="btns"><button class="btn" data-copy="Hola. Al aeropuerto, Terminal 1, con tarifa fija de 33 euros, por favor.">📋 Copiar frase pro taxista</button></div>
-  </div>
-</section>
-
-<section id="frases">
-  <h2>Frases úteis</h2>
-  <div class="card" id="phrases"></div>
-</section>
-
-<section id="info">
-  <h2>Informações úteis</h2>
-  <div class="grid2">
-    <div class="card">
-      <h3 style="margin:0 0 6px">🧳 Consigna do T1</h3>
-      <div class="small">Planta 0, área ajardinada em frente à sala 2. Aberta das 5h às 23h. <b>€17 por mala</b> (até 24h), €34 pelas duas. As malas passam por raio-X. Guardem o comprovante.</div>
-      <div class="btns"><button class="btn" data-copy="+34 913 936 938">📋 Tel. +34 913 936 938</button>
-        <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Consigna+Terminal+1+Aeropuerto+Madrid-Barajas">📍 Maps</a></div>
-    </div>
-    <div class="card">
-      <h3 style="margin:0 0 6px">✈️ Ryanair · MAD → DUB 23h</h3>
-      <div class="small">Façam a verificação de passaporte no app até aparecer <b>"DOCUMENT VERIFIED"</b>. Se falhar, vão ao balcão, que fecha às 22h (60 min antes). Confiram se a mala de 10 kg está incluída. Na saída há controle de passaporte (EES), e a Ryanair não espera ninguém preso na fila.</div>
-    </div>
-    <div class="card">
-      <h3 style="margin:0 0 6px">🚨 Emergência</h3>
-      <div class="small"><b>112</b> é o número geral de emergência na Espanha. Batedores de carteira agem em Sol, Gran Vía e Plaza Mayor: mochila na frente e passaportes no bolso interno.</div>
-      <div class="btns"><button class="btn" data-copy="112">📋 112</button></div>
-    </div>
-    <div class="card">
-      <h3 style="margin:0 0 6px">🎄 Natal e pôr do sol</h3>
-      <div class="small">Luzes de Natal de 21/11 a 06/01, das 18h à meia-noite. Mercado de Natal da Plaza Mayor de 27/11 a 31/12, das 10h às 21h. No domingo 06/12 (feriado) o centro fica lotado. Em meados de novembro as luzes e o mercado ainda não começaram. O pôr do sol é por volta de 18h em novembro e 17h50 em dezembro.</div>
-    </div>
-  </div>
-</section>
-
-<footer>Horários e preços levantados em nov/2026 (Aena, EMT, Ryanair, madrid.es). Restaurantes e alguns horários vêm de fontes não oficiais: confiram no Google Maps no dia. Boa viagem! 🇪🇸</footer>
+<footer>Os dados de cada roteiro ficam salvos no próprio código do site. As marcações de "feito" ficam no celular de quem marcou.</footer>
 </div>
-<div class="toast" id="toast"></div>
 
+<script src="viagens.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ---------- dados ----------
-// t = horário planejado (HH:MM, Madrid). city = parada do roteiro a pé.
-const STEPS = [
- {ph:"Aeroporto · chegada", t:"11:00", n:"Pouso no T4S", q:"Terminal 4S Aeropuerto Madrid-Barajas", ll:[40.4970,-3.5930],
-  d:"Peguem o trem automático (APM) até a T4, ~5 min.", air:true},
- {t:"11:25", n:"Imigração + EES", q:"Terminal 4 Aeropuerto Madrid-Barajas", ll:[40.4919,-3.5934],
-  d:"Cadastro biométrico: rosto e digitais. Passaporte português usa a fila UE. Contem com 30–90+ min.", tip:"Se saírem do T4 depois de 14h30, troquem para o roteiro compacto. Depois de 16h30, não vale ir ao centro.", air:true},
- {t:"13:15", n:"Ônibus verde → T1", q:"Terminal 4 Llegadas Aeropuerto Madrid-Barajas", ll:[40.4919,-3.5934],
-  d:"T4, planta 0 (desembarque), calçada externa. A tela mostra \"T1-T2-T3-T4\". Grátis, ~15 min.", air:true},
- {t:"13:35", n:"Deixar as malas na consigna do T1", q:"Consigna Terminal 1 Aeropuerto Madrid-Barajas", ll:[40.4683,-3.5706],
-  d:"Planta 0, área ajardinada em frente à sala 2. €17 por mala.", copy:"Consigna T1, Planta 0, zona ajardinada frente a la sala 2", air:true},
- {t:"14:05", n:"Exprés 203 → Cibeles", q:"Aeropuerto T1 Llegadas parada autobús 203", ll:[40.4678,-3.5712],
-  d:"Parada 3540 \"Aeropuerto T1-Llegadas\". Sigam as placas \"EMT 24h\". €5 por pessoa (contactless). ~35 min.", copy:"Parada 3540 Aeropuerto T1-Llegadas", air:true},
-
- {ph:"Centro · roteiro a pé", t:"14:45", n:"Plaza de Cibeles", a:"Plaza de Cibeles, 28014 Madrid", ll:[40.41930,-3.69310], city:true,
-  d:"Desembarque do 203. Fotos da fonte e do Palacio de Cibeles.", w:"15 min pela Calle de Alcalá"},
- {t:"15:00", n:"Puerta del Sol", a:"Puerta del Sol, 28013 Madrid", ll:[40.41690,-3.70350], city:true,
-  d:"Km 0 (na calçada em frente à Real Casa de Correos) e a estátua do Oso y el Madroño.", w:"4 min"},
- {t:"15:05", n:"Plaza Mayor · almoço", a:"Plaza Mayor, 28012 Madrid", ll:[40.41553,-3.70742], city:true,
-  d:"Bocadillo de calamares nos bares das ruas em volta. Mercado de Natal só a partir de 27/11.", tip:"Sugestão: Bar La Campana (Calle Botoneras, 6), saindo pelo Arco de Cuchilleros/Botoneras.", w:"2 min"},
- {t:"15:55", n:"Mercado de San Miguel", a:"Plaza de San Miguel, s/n, 28005 Madrid", ll:[40.41540,-3.70895], city:true,
-  d:"Tapas, croquetas, ostras e vermute. Aberto das 10h à meia-noite.", w:"8 min"},
- {t:"16:25", n:"Palacio Real (por fora)", a:"Palacio Real de Madrid, Calle de Bailén, s/n, 28071 Madrid", ll:[40.41797,-3.71430], city:true,
-  d:"Fachada, Plaza de Oriente e Catedral de la Almudena em frente. Saiam pelos Jardines de Sabatini.", tip:"O interior não dá mais hoje: a última entrada no domingo é às 15h. Aproveitem a fachada e a Plaza de Oriente.", w:"10–12 min"},
- {t:"17:05", n:"Templo de Debod · pôr do sol", a:"Templo de Debod, Calle de Ferraz, 1, 28008 Madrid", ll:[40.42404,-3.71780], city:true,
-  d:"Interior grátis. Depois, o mirante do Parque del Oeste para o pôr do sol (~18h em novembro, ~17h50 em dezembro).", w:"7 min"},
- {t:"18:05", n:"Plaza de España", a:"Plaza de España, 28008 Madrid", ll:[40.42340,-3.71220], city:true,
-  d:"Monumento a Cervantes, com Dom Quixote e Sancho. A partir daqui, desçam a Gran Vía.", w:"15 min pela Gran Vía"},
- {t:"18:25", n:"Plaza del Callao · Gran Vía", a:"Plaza del Callao, 28013 Madrid", ll:[40.42003,-3.70583], city:true,
-  d:"Telões da Gran Vía; luzes de Natal só a partir de 21/11. Edifício Carrión (Schweppes).", w:"7 min"},
- {t:"18:40", n:"Chocolatería San Ginés", a:"Chocolatería San Ginés, Pasadizo de San Ginés, 5, 28013 Madrid", ll:[40.41695,-3.70668], city:true,
-  d:"Chocolate con churros. Aberta 24h no fim de semana. Costuma ter fila, mas ela anda rápido.", w:"Táxi ou Uber: saiam daqui · ônibus: 15 min a pé até Cibeles"},
-
- {ph:"Volta ao aeroporto", t:"19:30", n:"Volta ao T1: ônibus, táxi ou Uber", go:35, a:"Plaza de Cibeles, 28014 Madrid", ll:[40.41930,-3.69310], city:true,
-  d:"203 em Cibeles (parada 71): ideal 19h30, máximo 19h45. Táxi: ideal 19h45, máximo 20h00. Uber/Cabify: pedir até 19h40, máximo 19h55. Detalhes na seção Ônibus.", tip:"Passou do horário do ônibus? Não esperem: peguem táxi no ponto mais próximo (Sol, Ópera ou Gran Vía).", copy:"Parada 71 Cibeles, línea 203 Exprés Aeropuerto"},
- {t:"20:00", n:"T1-Salidas · buscar malas", q:"Consigna Terminal 1 Aeropuerto Madrid-Barajas", ll:[40.4683,-3.5706],
-  d:"Desçam na parada 3539 (planta 1), vão à consigna na planta 0 e depois subam de volta à planta 1.", air:true},
- {t:"20:40", n:"Segurança + passaporte de saída", q:"Terminal 1 Salidas Aeropuerto Madrid-Barajas", ll:[40.4683,-3.5706],
-  d:"Se o app da Ryanair não verificou os documentos, vão antes ao balcão (fecha às 22h).", air:true},
- {t:"22:30", n:"Portão · Ryanair para Dublin", q:"Terminal 1 Aeropuerto Madrid-Barajas", ll:[40.4683,-3.5706],
-  d:"O portão fecha por volta das 22h30. Decolagem às 23h.", air:true}
-];
-const PHRASES=[
- ["Al aeropuerto, Terminal 1, con tarifa fija, por favor.","Táxi: ao aeroporto, T1, tarifa fixa"],
- ["¿Este autobús va a la Terminal 1?","Esse ônibus vai para o T1?"],
- ["Quería dejar dos maletas hasta las nueve de la noche.","Consigna: deixar duas malas até as 21h"],
- ["Vengo a recoger mis maletas.","Vim buscar minhas malas"],
- ["Dos bocadillos de calamares, por favor.","Dois sanduíches de lula"],
- ["Chocolate con churros para dos, por favor.","Chocolate com churros para dois"],
- ["Dos vermuts de grifo, por favor.","Dois vermutes da torneira"],
- ["La cuenta, por favor. ¿Puedo pagar con tarjeta?","A conta, por favor. Aceita cartão?"],
- ["¿Dónde está el baño?","Onde fica o banheiro?"],
- ["Me han robado la cartera.","Roubaram minha carteira"]
-];
-const ROUTE_URL="https://www.google.com/maps/dir/?api=1&origin=Plaza+de+Cibeles%2C+Madrid&destination=Plaza+de+Cibeles%2C+Madrid&waypoints=Puerta+del+Sol%2C+Madrid%7CPlaza+Mayor%2C+Madrid%7CMercado+de+San+Miguel%2C+Madrid%7CPalacio+Real+de+Madrid%7CTemplo+de+Debod%2C+Madrid%7CPlaza+de+Espa%C3%B1a%2C+Madrid%7CPlaza+del+Callao%2C+Madrid%7CChocolater%C3%ADa+San+Gin%C3%A9s%2C+Madrid&travelmode=walking";
-
-// ---------- util ----------
 const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const enc=encodeURIComponent;
-const place=s=>"https://www.google.com/maps/search/?api=1&query="+enc(s.a||s.q);
-const go=(s,mode)=>"https://www.google.com/maps/dir/?api=1&destination="+enc(s.a||s.q)+"&travelmode="+mode;
-const KEY="madrid-classico-done";
-let done={}; try{done=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}};
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1700)}
-async function copy(txt){
-  try{await navigator.clipboard.writeText(txt);toast("Copiado ✓")}
-  catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
-    try{document.execCommand("copy");toast("Copiado ✓")}catch(_){toast("Não deu para copiar")}ta.remove()}
-}
-// Dia da escala em Madrid (AAAA-MM-DD). Para mudar a data, altere só esta linha.
-const TRIP_DATE="2026-11-15";
-function madridNow(){
-  const p=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Madrid",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
-  const g=t=>p.find(x=>x.type===t).value;
-  const h=+g("hour")%24, m=+g("minute");
-  return {h,m,min:h*60+m,date:`${g("year")}-${g("month")}-${g("day")}`,str:String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")};
-}
-function daysToTrip(n){return Math.round((Date.parse(TRIP_DATE)-Date.parse(n.date))/864e5)}
-const toMin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const VIAGENS=window.VIAGENS||[];
+const ALL=VIAGENS.flatMap(v=>v.roteiros.map(r=>({...r,viagem:v})));
+const hrefOf=r=>r.pagina||("roteiro/?id="+encodeURIComponent(r.id));
+const pts=r=>(r.paradas||[]).filter(p=>Array.isArray(p.ll));
 
-// ---------- passos (horários dinâmicos) ----------
-// Ao marcar uma parada do centro como feita, guardamos a hora (Madrid).
-// As próximas paradas são recalculadas: hora em que terminou + caminhada,
-// mantendo a duração planejada das etapas seguintes.
-const fmt=m=>{m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")};
-const RET=STEPS.findIndex(s=>s.n.startsWith("Volta ao T1"));
-function travelMin(s){
-  if(typeof s.go==="number") return s.go;
-  const m=(s.w||"").match(/(\d+)(?:\s*[–-]\s*(\d+))?\s*min/);
-  return m?+(m[2]||m[1]):0;
+// ---------- datas ----------
+const MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const SEM=["dom","seg","ter","qua","qui","sex","sáb"];
+function hoje(tz){
+  const p=new Intl.DateTimeFormat("en-CA",{timeZone:tz||"UTC",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  return p; // AAAA-MM-DD
 }
-function projections(){
-  const out=[]; let delta=0;
-  STEPS.forEach((s,i)=>{
-    out[i]=toMin(s.t)+delta;
-    if(typeof done[i]==="number" && (s.city||typeof s.go==="number") && STEPS[i+1]){
-      delta=(done[i]+travelMin(s))-toMin(STEPS[i+1].t);
-    }
-  });
-  return out;
+function fmtData(d){if(!d)return"";const[y,m,dd]=d.split("-").map(Number);const w=new Date(Date.UTC(y,m-1,dd)).getUTCDay();return `${SEM[w]} ${dd} ${MESES[m-1]}`}
+function status(r){
+  if(!r.data) return {cls:"gray",txt:"sem data"};
+  const diff=Math.round((Date.parse(r.data)-Date.parse(hoje(r.fuso)))/864e5);
+  if(diff===0) return {cls:"green",txt:"é hoje!"};
+  if(diff===1) return {cls:"blue",txt:"amanhã"};
+  if(diff>1) return {cls:"blue",txt:`em ${diff} dias`};
+  return {cls:"gray",txt:"feito ✓"};
 }
-function nextIndex(){return STEPS.findIndex((s,i)=>!done[i])}
-function timeCell(i,P){
-  const pl=toMin(STEPS[i].t), pr=P[i];
-  if(typeof done[i]==="number") return `<span class="time" style="color:var(--green)">✓ ${fmt(done[i])}</span>`;
-  if(done[i]) return `<span class="time" style="color:var(--green)">✓</span>`;
-  if(Math.abs(pr-pl)<3) return `<span class="time">${STEPS[i].t}</span>`;
-  return `<span class="time" style="color:var(--muted);text-decoration:line-through;font-weight:600">${STEPS[i].t}</span><span class="time" style="color:${pr>pl?"var(--red)":"var(--green)"}">${fmt(pr)}</span>`;
+
+// ---------- filtros ----------
+let filtro="todas";
+function renderChips(){
+  const opts=[["todas","Todas"],...VIAGENS.map(v=>[v.id,v.nome])];
+  $("#chips").innerHTML=opts.map(([id,n])=>`<button class="chip ${filtro===id?"on":""}" data-f="${esc(id)}">${esc(n)}</button>`).join("");
 }
-function returnInfo(P){
-  if(RET<0||done[RET]) return "";
-  const r=P[RET], bus=toMin("19:45"), ideal=toMin("19:30"), taxi=toMin("20:00");
-  if(r<=ideal) return `<span class="tag green">volta prevista ${fmt(r)} · folga de ${ideal-r} min</span>`;
-  if(r<=bus) return `<span class="tag gold">volta prevista ${fmt(r)} · ônibus ainda dá (máx. 19h45)</span>`;
-  if(r<=taxi) return `<span class="tag red">volta prevista ${fmt(r)} · só de táxi/Uber</span>`;
-  return `<span class="tag red">volta prevista ${fmt(r)} · passou do limite! Cortem paradas</span>`;
+$("#chips").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;filtro=b.dataset.f;renderChips();renderTrips();drawMap();fitVisible()});
+
+// ---------- lista ----------
+let minis=[];
+function renderTrips(){
+  minis.forEach(m=>m.remove()); minis=[];
+  const vs=VIAGENS.filter(v=>filtro==="todas"||v.id===filtro);
+  if(!vs.length){$("#trips").innerHTML='<div class="empty small">Nenhuma viagem cadastrada ainda. Veja abaixo como adicionar.</div>';return}
+  $("#trips").innerHTML=vs.map(v=>{
+    const rs=[...v.roteiros].sort((a,b)=>(a.data||"9").localeCompare(b.data||"9"));
+    return `<section class="trip"><div class="trip-head"><h2>${esc(v.nome)}</h2><span class="per">${esc(v.periodo||"")}</span></div>
+      ${v.resumo?`<p class="sub">${esc(v.resumo)}</p>`:""}
+      <div class="grid">${rs.map(r=>{const s=status(r),n=pts(r).length;return `
+        <article class="card">
+          <div class="stripe" style="background:${esc(r.cor)}"></div>
+          <div class="mini" id="mini-${esc(r.id)}"></div>
+          <div class="body">
+            <div class="meta"><span style="color:${esc(r.cor)}">${esc(r.bandeira||"")} ${esc(r.cidade||"")}</span><span class="tag ${s.cls}">${s.txt}</span></div>
+            <h3>${esc(r.emoji||"")} ${esc(r.titulo)}</h3>
+            <div class="small" style="font-weight:600">${esc(fmtData(r.data))}${n?` · ${n} paradas`:""}</div>
+            <p>${esc(r.subtitulo||"")}</p>
+            <div class="btns">
+              <a class="btn primary" style="background:${esc(r.cor)}" href="${esc(hrefOf(r))}">Abrir roteiro →</a>
+              ${n?`<button class="btn" data-fly="${esc(r.id)}">📍 No mapa</button>`:""}
+            </div>
+          </div>
+        </article>`}).join("")}</div></section>`;
+  }).join("");
+  if(!window.L) return;
+  vs.forEach(v=>v.roteiros.forEach(r=>{
+    const el=document.getElementById("mini-"+r.id), P=pts(r); if(!el) return;
+    if(!P.length){el.style.display="none";return}
+    const m=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false,boxZoom:false,keyboard:false});
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",{maxZoom:19}).addTo(m);
+    if(P.length>1) L.polyline(P.map(p=>p.ll),{color:r.cor,weight:3,opacity:.8}).addTo(m);
+    P.forEach(p=>L.circleMarker(p.ll,{radius:4,color:"#fff",weight:1.5,fillColor:r.cor,fillOpacity:1}).addTo(m));
+    P.length>1?m.fitBounds(P.map(p=>p.ll),{padding:[14,14]}):m.setView(P[0].ll,14);
+    el.style.cursor="pointer"; el.onclick=()=>location.href=hrefOf(r);
+    minis.push(m);
+  }));
 }
-function renderSteps(){
-  const ni=nextIndex(), P=projections(); let html="";
-  STEPS.forEach((s,i)=>{
-    if(s.ph) html+=`<div class="phase">${esc(s.ph)}</div>`;
-    const cp=s.copy||s.a||s.q;
-    html+=`<div class="step ${done[i]?"done":""} ${i===ni?"isnext":""}" id="st${i}">
-      <button class="chk" data-i="${i}" aria-label="marcar">${done[i]?"✓":""}</button>
-      <div>
-        <div class="top">${timeCell(i,P)}<span class="name">${esc(s.n)}</span>${i===ni?'<span class="tag blue">próxima</span>':""}</div>
-        <div class="desc">${esc(s.d)}</div>
-        ${s.tip?`<div class="tip">💡 ${esc(s.tip)}</div>`:""}
-        <div class="btns">
-          <a class="btn" target="_blank" rel="noopener" href="${place(s)}">📍 Ver no Maps</a>
-          ${s.city?`<a class="btn blue" target="_blank" rel="noopener" href="${go(s,"walking")}">🚶 Ir a pé daqui</a>`:`<a class="btn blue" target="_blank" rel="noopener" href="${go(s,"transit")}">🚌 Como chegar</a>`}
-          <button class="btn" data-copy="${esc(cp)}">📋 Copiar</button>
-        </div>
-      </div></div>`;
-    if(s.w) html+=`<div class="walk">↓ ${esc(s.w)} a pé</div>`;
-  });
-  $("#steps").innerHTML=html;
-  const ri=$("#retInfo"); if(ri) ri.innerHTML=returnInfo(P);
-  renderNext(); updatePins();
-}
-function markDone(i){
-  const s=STEPS[i], n=madridNow();
-  done[i]=(s.city||typeof s.go==="number")&&n.date===TRIP_DATE ? n.min : true;
-  // marcar uma parada marca também as anteriores, sem horário
-  for(let k=0;k<i;k++) if(!done[k]) done[k]=true;
-  save(); renderSteps();
-  if(typeof done[i]==="number") toast(`Feito às ${fmt(done[i])} · horários atualizados`);
-}
-$("#steps").addEventListener("click",e=>{
-  const b=e.target.closest(".chk"); if(!b) return;
-  const i=+b.dataset.i;
-  if(done[i]){delete done[i];save();renderSteps();} else markDone(i);
+$("#trips").addEventListener("click",e=>{const b=e.target.closest("[data-fly]");if(!b)return;
+  const r=ALL.find(x=>x.id===b.dataset.fly); if(!r||!map) return;
+  document.getElementById("map").scrollIntoView({behavior:"smooth",block:"center"});
+  map.flyToBounds(pts(r).map(p=>p.ll),{padding:[30,30],duration:1.2});
 });
-$("#reset").onclick=()=>{done={};save();renderSteps();toast("Marcações limpas")};
 
-function renderNext(){
-  const ni=nextIndex(), now=madridNow(), P=projections();
-  if(ni<0){$("#nextCard").innerHTML=`<div class="lbl">Tudo feito</div><div class="ttl">Boa viagem para Dublin! ✈️</div>`;return}
-  const s=STEPS[ni], diff=now.min-P[ni];
-  let pace="";
-  if(now.date===TRIP_DATE&&now.min>=toMin("10:00")&&now.min<=toMin("23:30")){
-    pace = diff>15?`<span class="tag red">${diff} min atrás do previsto</span>`:diff<-15?`<span class="tag green">adiantados</span>`:`<span class="tag green">no horário</span>`;
-  }
-  $("#nextCard").innerHTML=`<div class="lbl">Próxima parada · previsto ${fmt(P[ni])} ${pace}</div>
-    <div class="ttl">${esc(s.n)}</div><div class="small">${esc(s.d)}</div>
-    <div style="margin-top:6px">${returnInfo(P)}</div>
-    <div class="btns"><a class="btn blue" target="_blank" rel="noopener" href="${go(s,s.city?"walking":"transit")}">${s.city?"🚶 Ir a pé":"🚌 Como chegar"}</a>
-    <a class="btn" href="#st${ni}">↓ Ver no roteiro</a>
-    <button class="btn" data-done="${ni}">✓ Terminei aqui</button></div>`;
-}
-$("#nextCard").addEventListener("click",e=>{const b=e.target.closest("[data-done]");if(!b)return;markDone(+b.dataset.done)});
-
-// ---------- relógio / contagem ----------
-function tick(){
-  const n=madridNow(); $("#clk").textContent=n.str;
-  const left=toMin("19:30")-n.min, c=$("#cnt"), dd=daysToTrip(n);
-  const L=t=>toMin(t)-n.min;
-  if(dd>0){c.className="count ok";c.textContent=dd===1?"Escala é amanhã · horários de Madrid":`Escala em ${dd} dias · horários de Madrid`;}
-  else if(dd<0){c.className="count ok";c.textContent="Escala concluída · bom Dublin! ☘️";}
-  else if(n.min<toMin("09:00")){c.className="count ok";c.textContent="Ônibus de volta: 19h30";}
-  else if(left>60){c.className="count ok";c.textContent=`${Math.floor(left/60)}h${String(left%60).padStart(2,"0")} até o 203 (19h30)`;}
-  else if(left>0){c.className="count warn";c.textContent=`${left} min até o 203 de volta`;}
-  else if(L("19:45")>0){c.className="count bad";c.textContent=`Ônibus: máx. ${L("19:45")} min · táxi até 20h`;}
-  else if(L("20:00")>0){c.className="count bad";c.textContent=`Táxi agora! Máx. ${L("20:00")} min`;}
-  else {c.className="count bad";c.textContent="Aeroporto: balcão fecha 22h";}
-  renderNext();
-}
-
-// ---------- mapa ----------
-let map, markers=[];
-function initMap(){
-  if(!window.L){$("#map").innerHTML='<div style="padding:20px" class="small">Mapa indisponível sem internet. Usem os botões do Google Maps.</div>';return}
-  map=L.map("map",{scrollWheelZoom:false});
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
-  const city=STEPS.map((s,i)=>({s,i})).filter(x=>x.s.city&&x.i<14);
-  L.polyline(city.map(x=>x.s.ll),{color:"#b8322a",weight:3,opacity:.7,dashArray:"6 6"}).addTo(map);
-  let k=0;
-  STEPS.forEach((s,i)=>{
-    if(!s.city && i!==3) return; // no aeroporto, só a consigna
-    if(i===14) return; // Cibeles repetida
-    const label = s.city? String(++k) : "🧳";
-    const m=L.marker(s.ll,{icon:L.divIcon({className:"",html:`<div class="pin" data-pin="${i}">${label}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(map);
-    m.bindPopup(`<b>${esc(s.t)} · ${esc(s.n)}</b><br>${esc(s.d)}<br><a target="_blank" rel="noopener" href="${place(s)}">📍 Abrir no Google Maps</a> · <a target="_blank" rel="noopener" href="${go(s,s.city?"walking":"transit")}">Ir</a>`);
-    markers.push({m,i});
+// ---------- mapa geral ----------
+let map, layers=[];
+const centro=P=>{const n=P.length;return [P.reduce((a,p)=>a+p.ll[0],0)/n,P.reduce((a,p)=>a+p.ll[1],0)/n]};
+function visiveis(){return ALL.filter(r=>(filtro==="todas"||r.viagem.id===filtro)&&pts(r).length)}
+function drawMap(){
+  if(!map) return;
+  layers.forEach(({big,det})=>{big.remove();det.remove()}); layers=[];
+  visiveis().forEach(r=>{
+    const P=pts(r), s=status(r);
+    const pop=`<b>${esc(r.emoji||"")} ${esc(r.titulo)}</b><br><span style="color:#777">${esc(r.cidade||"")} · ${esc(fmtData(r.data))} · ${s.txt}</span><br><a href="${esc(hrefOf(r))}" style="font-weight:700;color:${esc(r.cor)}">Abrir roteiro →</a>`;
+    // visão de longe: um pino por roteiro
+    const big=L.marker(centro(P),{icon:L.divIcon({className:"",html:`<div class="trip-pin" style="background:${esc(r.cor)}">${esc(r.emoji||"📍")}</div>`,iconSize:[40,40],iconAnchor:[20,20]})}).bindPopup(pop);
+    // visão de perto: paradas numeradas e o caminho
+    const det=L.layerGroup();
+    if(P.length>1) L.polyline(P.map(p=>p.ll),{color:r.cor,weight:3,opacity:.75,dashArray:"6 6"}).addTo(det);
+    P.forEach((p,i)=>L.marker(p.ll,{icon:L.divIcon({className:"",html:`<div class="stop-pin" style="background:${esc(r.cor)}">${i+1}</div>`,iconSize:[22,22],iconAnchor:[11,11]})})
+      .bindPopup(`<b>${esc(p.n)}</b>${p.t?`<br>${esc(p.t)}`:""}<br><span style="color:#777">${esc(r.titulo)}</span><br><a href="${esc(hrefOf(r))}" style="font-weight:700;color:${esc(r.cor)}">Abrir roteiro →</a>`).addTo(det));
+    layers.push({r,big,det,bounds:L.latLngBounds(P.map(p=>p.ll))});
   });
-  fitCity(); updatePins();
+  zoomLayers();
 }
-function fitCity(){map&&map.fitBounds(STEPS.filter(s=>s.city).map(s=>s.ll),{padding:[24,24]})}
-function fitAll(){map&&map.fitBounds(markers.map(x=>x.m.getLatLng()),{padding:[24,24]})}
-function updatePins(){
-  const ni=nextIndex();
-  markers.forEach(({m,i})=>{const el=m.getElement()&&m.getElement().querySelector(".pin"); if(!el) return;
-    el.classList.toggle("done",!!done[i]); el.classList.toggle("next",i===ni||(ni===14&&i===5));});
+function zoomLayers(){
+  // mostra as paradas quando o roteiro ocupa espaço suficiente na tela; senão, um pino só
+  const z=map.getZoom();
+  layers.forEach(({big,det,bounds})=>{
+    const a=map.project(bounds.getNorthWest(),z), b=map.project(bounds.getSouthEast(),z);
+    const perto=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y))>90;
+    if(perto){big.remove(); det.addTo(map)} else {det.remove(); big.addTo(map)}
+  });
 }
-$("#fitCity").onclick=fitCity; $("#fitAll").onclick=fitAll;
-$("#fullRoute").href=ROUTE_URL;
+function fitVisible(){
+  if(!map) return;
+  const P=visiveis().flatMap(pts).map(p=>p.ll);
+  if(P.length) map.fitBounds(P,{padding:[40,40],maxZoom:13}); else map.setView([30,-20],2);
+}
+function initMap(){
+  if(!window.L){$("#map").innerHTML='<div class="empty small">Mapa indisponível sem internet.</div>';return}
+  map=L.map("map",{scrollWheelZoom:false,worldCopyJump:true});
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+  map.on("zoomend",zoomLayers);
+  fitVisible(); drawMap();
+}
+$("#fitAll").onclick=()=>{filtro="todas";renderChips();renderTrips();drawMap();fitVisible()};
 
-// ---------- frases ----------
-$("#phrases").innerHTML=PHRASES.map(p=>`<div class="phr"><div><div class="es">${esc(p[0])}</div><div class="pt">${esc(p[1])}</div></div><button class="btn" data-copy="${esc(p[0])}">📋</button></div>`).join("");
-
-// ---------- copiar (delegado) ----------
-document.addEventListener("click",e=>{const b=e.target.closest("[data-copy]"); if(b) copy(b.dataset.copy)});
-
-renderSteps(); initMap(); tick(); setInterval(tick,30000);
+renderChips(); initMap(); renderTrips();
 </script>
 </body>
 </html>
